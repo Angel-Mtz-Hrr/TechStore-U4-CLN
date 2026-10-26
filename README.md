@@ -4,6 +4,8 @@ Actividad 4 · Componentes de Lógica de Negocio · FIME-UANL.
 Sistema de gestión de pedidos **en memoria** (sin base de datos): los datos se cargan
 desde CSV al iniciar y los cambios se pierden al cerrar el programa.
 
+M6 Grupo 003 Equipo 11
+
 ## Estructura
 
 ```text
