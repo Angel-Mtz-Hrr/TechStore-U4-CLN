@@ -3,12 +3,16 @@
 Los endpoints solo buscan el pedido, delegan en el dominio y traducen las
 excepciones de negocio a códigos HTTP. Las reglas viven en app/domain.py.
 """
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from app.domain import (
-    InvalidOrderData, InvalidOrderTransition, Order, OrderItemLimitExceeded,
+    InvalidOrderData,
+    InvalidOrderTransition,
+    Order,
+    OrderItemLimitExceeded,
 )
 from app.specifications import discount_rate
 from cargar_csv import load_fixture
@@ -16,7 +20,7 @@ from cargar_csv import load_fixture
 app = FastAPI(
     title="TechStore U4",
     description="Núcleo de negocio de pedidos (en memoria). "
-                "Los cambios se pierden al reiniciar el servidor.",
+    "Los cambios se pierden al reiniciar el servidor.",
 )
 
 # Repositorio en memoria: se llena al iniciar la aplicación.
@@ -82,8 +86,11 @@ def serialize(order: Order) -> dict:
 
 
 def summary(order: Order) -> dict:
-    return {"id": order.id, "status": order.status.value,
-            "events": [e.name for e in order.events]}
+    return {
+        "id": order.id,
+        "status": order.status.value,
+        "events": [e.name for e in order.events],
+    }
 
 
 # -------------------------------------------------------------- endpoints
@@ -110,4 +117,18 @@ def ship_order(order_id: str, body: ShipRequest):
 def cancel_order(order_id: str, body: CancelRequest):
     order = get_order_or_404(order_id)
     order.cancel(body.reason)
+    return summary(order)
+
+
+@app.post("/orders/{order_id}/deliver")
+def deliver_order(order_id: str):
+    order = get_order_or_404(order_id)
+    order.deliver()
+    return summary(order)
+
+
+@app.post("/orders/{order_id}/return")
+def return_order(order_id: str):
+    order = get_order_or_404(order_id)
+    order.return_order()
     return summary(order)

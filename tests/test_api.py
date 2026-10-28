@@ -1,4 +1,5 @@
 """Pruebas de integración de la API (Parte 3)."""
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -40,8 +41,11 @@ def test_get_pedido_inexistente_404(client):
 def test_confirm_exitoso(client):
     r = client.post("/orders/O013/confirm")
     assert r.status_code == 200
-    assert r.json() == {"id": "O013", "status": "CONFIRMED",
-                        "events": ["OrderConfirmed"]}
+    assert r.json() == {
+        "id": "O013",
+        "status": "CONFIRMED",
+        "events": ["OrderConfirmed"],
+    }
 
 
 def test_confirm_inexistente_404(client):
@@ -128,10 +132,105 @@ def test_cancel_inexistente_404(client):
     assert r.status_code == 404
 
 
+# -------------------------------------------------------------- deliver
+def enviar(client, oid):
+    """Deja el pedido en SHIPPED."""
+    assert client.post(f"/orders/{oid}/confirm").status_code == 200
+    assert post_ship(client, oid).status_code == 200
+
+
+def test_deliver_exitoso(client):
+    enviar(client, "O016")
+    r = client.post("/orders/O016/deliver")
+    assert r.status_code == 200
+    assert r.json() == {
+        "id": "O016",
+        "status": "DELIVERED",
+        "events": ["OrderConfirmed", "OrderShipped", "OrderDelivered"],
+    }
+
+
+def test_deliver_desde_draft_409(client):
+    r = client.post("/orders/O016/deliver")
+    assert r.status_code == 409
+    assert client.get("/orders/O016").json()["status"] == "DRAFT"
+
+
+def test_deliver_desde_confirmed_409(client):
+    client.post("/orders/O016/confirm")
+    assert client.post("/orders/O016/deliver").status_code == 409
+
+
+def test_deliver_doble_409_sin_evento_extra(client):
+    enviar(client, "O016")
+    client.post("/orders/O016/deliver")
+    assert client.post("/orders/O016/deliver").status_code == 409
+    eventos = client.get("/orders/O016").json()["events"]
+    assert [e["name"] for e in eventos].count("OrderDelivered") == 1
+
+
+def test_deliver_inexistente_404(client):
+    assert client.post("/orders/NOPE/deliver").status_code == 404
+
+
+# --------------------------------------------------------------- return
+def test_return_exitoso(client):
+    enviar(client, "O015")
+    r = client.post("/orders/O015/return")
+    assert r.status_code == 200
+    assert r.json() == {
+        "id": "O015",
+        "status": "RETURNED",
+        "events": ["OrderConfirmed", "OrderShipped", "OrderReturned"],
+    }
+
+
+def test_return_desde_confirmed_409(client):
+    client.post("/orders/O015/confirm")
+    r = client.post("/orders/O015/return")
+    assert r.status_code == 409
+    assert client.get("/orders/O015").json()["status"] == "CONFIRMED"
+
+
+def test_return_inexistente_404(client):
+    assert client.post("/orders/NOPE/return").status_code == 404
+
+
+# ------------------------------------------------- estados finales y ciclo
+def test_ciclo_completo_por_api(client):
+    assert client.post("/orders/O016/confirm").status_code == 200
+    assert post_ship(client, "O016").status_code == 200
+    assert client.post("/orders/O016/deliver").status_code == 200
+    body = client.get("/orders/O016").json()
+    assert body["status"] == "DELIVERED"
+    assert [e["name"] for e in body["events"]] == [
+        "OrderConfirmed",
+        "OrderShipped",
+        "OrderDelivered",
+    ]
+
+
+def test_entregado_no_admite_mas_operaciones(client):
+    enviar(client, "O016")
+    client.post("/orders/O016/deliver")
+    assert client.post("/orders/O016/return").status_code == 409
+    assert client.post("/orders/O016/cancel", json={"reason": "x"}).status_code == 409
+    assert client.post("/orders/O016/confirm").status_code == 409
+    assert post_ship(client, "O016").status_code == 409
+
+
+def test_devuelto_no_admite_mas_operaciones(client):
+    enviar(client, "O015")
+    client.post("/orders/O015/return")
+    assert client.post("/orders/O015/deliver").status_code == 409
+    assert client.post("/orders/O015/cancel", json={"reason": "x"}).status_code == 409
+    assert client.get("/orders/O015").json()["status"] == "RETURNED"
+
+
 # ------------------------------------------------------------ documentación
 def test_openapi_y_docs_disponibles(client):
     assert client.get("/docs").status_code == 200
     paths = client.get("/openapi.json").json()["paths"]
     assert "/orders/{order_id}" in paths
-    for ruta in ("confirm", "ship", "cancel"):
+    for ruta in ("confirm", "ship", "cancel", "deliver", "return"):
         assert f"/orders/{{order_id}}/{ruta}" in paths
