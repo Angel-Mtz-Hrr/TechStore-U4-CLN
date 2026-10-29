@@ -8,7 +8,12 @@ Domain-Driven Design (Value Objects y Aggregate Root), el patrón Specification 
 reglas de descuento, una máquina de estados con Domain Events y una API REST con FastAPI,
 todo verificado con pruebas automáticas.
 
-**Equipo:** M6 · Grupo 003 · Equipo 11
+Componentes de Lógica de Negocio · M6 · Grupo 003 · Equipo 11
+
+**Integrantes:**
+José Angel Martínez Herrera - 2147975
+Fernanda Lozano Ovalle - 2147342
+Mauricio José Marcos Mesías - 2147654
 
 ## Estructura
 
