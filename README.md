@@ -25,7 +25,12 @@ TechStore-U4-CLN/
 │   ├── domain.py           # Money, OrderItem, Customer, Order (Aggregate Root), eventos, excepciones
 │   ├── specifications.py   # Patrón Specification + reglas de descuento 10 % / 5 %
 │   └── api.py              # API REST con FastAPI
-├── datos/                  # CSV: clientes, productos, pedidos, detalle_pedidos, escenarios
+├── datos/                  # CSV que se cargan en memoria
+│   ├── clientes.csv        # 12 clientes (es_vip y activo)
+│   ├── productos.csv       # 12 productos (precio_mxn y existencia)
+│   ├── pedidos.csv         # 16 pedidos, todos en DRAFT
+│   ├── detalle_pedidos.csv # 21 renglones de productos por pedido
+│   └── escenarios.csv      # 15 casos E01–E15
 ├── tests/
 │   ├── __init__.py
 │   ├── test_domain.py      # Dominio y Specifications (63 pruebas)
@@ -34,7 +39,11 @@ TechStore-U4-CLN/
     ├── BITACORA.md                                                   # Resultado de los 15 escenarios
     ├── REFLEXION.md                                                  # Tres errores encontrados y aprendizajes
     ├── Diagrama de estados y Explicacion de los Domain Events.md     # Diagrama Mermaid y eventos
-    └── Captura *.png                                                 # Cinco capturas de evidencia
+    ├── Captura Swagger docs operacion exitosa.png                    # Swagger /docs: operación exitosa
+    ├── Captura Swagger docs operacion rechazada.png                  # Swagger /docs: operación rechazada
+    ├── Captura bitacora resuelta de los 15 escenarios.png            # Bitácora de los 15 escenarios resuelta
+    ├── Captura carga exitosa de los 16 pedidos.png                   # Carga exitosa de los 16 pedidos
+    └── Captura pruebas pytest y resultados.png                       # Resultado de pytest (92 pruebas)                                              # Cinco capturas de evidencia
 ```
 
 ## Instalación
