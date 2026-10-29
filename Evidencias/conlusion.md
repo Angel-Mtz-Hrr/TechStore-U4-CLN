@@ -1,1 +1,10 @@
-En conclusión, el desarrollo de TechStore permitió comprender la importancia de organizar correctamente la lógica de negocio de un sistema de gestión de pedidos. Mediante el uso de Python, FastAPI y el enfoque de Diseño Guiado por el Dominio (DDD), se establecieron reglas para administrar los pedidos, validar los datos, aplicar descuentos y controlar las diferentes etapas de cada compra. Además, la implementación de pruebas y el registro de eventos ayudan a verificar que las operaciones se realicen de manera correcta y que los errores sean identificados oportunamente. Este proyecto permitió reforzar los conocimientos sobre el desarrollo de software, la creación de API REST y la aplicación de reglas de negocio. Finalmente, aunque el sistema utiliza archivos CSV para cargar los datos y los cambios no se conservan al cerrar el programa, representa una base funcional para comprender cómo se estructura un sistema de pedidos y cómo podría mejorarse en el futuro mediante una base de datos permanente.
+Reflexión
+
+Tres errores encontrados y cómo los solucioné
+
+1. **Python no estaba instalado.** Al ejecutar `python -m venv .venv` apareció "Python was not found". Lo resolví instalando Python (marcando la opción de agregarlo al PATH), cerrando y abriendo la terminal y verificando con `python --version`.
+
+2. **No tenía permiso para subir archivos al repositorio.** GitHub mostraba "Las cargas están deshabilitadas" porque mi cuenta no tenía acceso push. Lo resolví haciendo un fork, subiendo mi carpeta ahí y abriendo un pull request al repositorio original.
+
+3. **Confundí la documentación de Swagger con el resultado real.** No encontraba el código 409 porque miraba la sección "Responses", que solo muestra ejemplos. El resultado real está en "Server response", y el 409 solo aparece si se repite la misma operación con el mismo ID sin reiniciar el servidor, porque los datos viven en memoria.
+
